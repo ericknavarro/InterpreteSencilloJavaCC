@@ -1,0 +1,303 @@
+options {
+  IGNORE_CASE = true;
+  STATIC = false;
+}
+
+PARSER_BEGIN(Gramatica)
+/** Analizador de expresiones aritmeticas sencillas. */
+package Analizador; 
+
+import Abstract.AST;
+import Expresiones.Aritmetica;
+import Expresiones.Relacional;
+import Expresiones.Logica;
+import Expresiones.Primitivo;
+import Expresiones.Identificador;
+import Expresiones.Aritmetica.OperadorAritmetico;
+import Expresiones.Logica.OperadorLogico;
+import Expresiones.Relacional.OperadorRelacional;
+import Instrucciones.Imprimir;
+import Instrucciones.Declaracion;
+import Instrucciones.Si;
+import Instrucciones.Mientras;
+import Instrucciones.Asignacion;
+import TablaSimbolos.Arbol;
+import TablaSimbolos.Tipo;
+import TablaSimbolos.Tipo.Tipos;
+import java.util.ArrayList;
+
+public class Gramatica {
+}
+PARSER_END(Gramatica)
+
+/** Lexico */
+SKIP : {
+      " "
+    | "\t"
+    | "\r"
+    | "\n"
+    | <"//" (~["\n", "\r"])*>
+    | <"/*" (~["*"])* "*" ("*" | ~["*","/"] (~["*"])* "*")* "/">
+}
+
+TOKEN : {
+      <NUMERO: (["0"-"9"])+>
+    | <DECIMAL: (["0"-"9"])+"."(["0"-"9"])+>
+    | <ENTERO: "Numero">
+    | <CADENA: "Cadena">
+    | <IMPRIMIR: "Imprimir">
+    | <MIENTRAS: "Mientras">
+    | <SI: "if">
+    | <SINO: "else">
+    | <PCOMA: ";">
+    | <PARENI: "(">
+    | <PAREND: ")">
+    | <CORI: "[">
+    | <CORD: "]">
+    | <LLAVEI: "{">
+    | <LLAVED: "}">
+    | <MAS: "+">
+    | <MENOS: "-">
+    | <POR: "*">
+    | <DIV: "/">
+    | <IGUAL: "=">
+    | <MENORQUE: "<">
+    | <MAYORQUE: ">">
+    | <MENORIGUAL: "<=">
+    | <MAYORIGUAL: ">=">
+    | <IGUALACION: "==">
+    | <DIFERENCIACION: "!=">
+    | <AND: "&&">
+    | <OR: "||">
+    | <NOT: "!" >
+    | <IDENTIFICADOR: ["a"-"z","A"-"Z", "_"] ( ["a"-"z","A"-"Z", "_"] | ["0"-"9"] )* >
+}
+
+MORE :
+{
+    "\"" :STRING_STATE
+}
+
+<STRING_STATE> MORE:
+{
+    <~["\""]>
+}
+
+<STRING_STATE> TOKEN:
+{
+   <STRING:"\""> : DEFAULT 
+}
+/** Fin Lexico */
+
+
+/** Producción inicial 
+    Analizar -> (Instruccion)+ EOF
+*/
+Arbol Analizar() :
+{ArrayList<AST> ins = new ArrayList<AST>(); AST e;}
+{
+  (e=Instruccion() {ins.add(e);})+ <EOF> {return new Arbol(ins);}
+}
+
+/** Instruccion -> imprimir 
+                 | declaracion
+                 | asignacion
+                 | si
+                 | mientras
+*/
+AST Instruccion() :
+{AST e;}
+{
+  e=Imprimir() {return e;}
+  | 
+  e=Declaracion() {return e;}
+  | 
+  e=Asignacion() {return e;}
+  | 
+  e=Si() {return e;}
+  | 
+  e=Mientras() {return e;}
+}
+
+/** Tipo -> numero
+         |  cadena
+*/
+Tipo Tipo() :
+{}
+{
+    <ENTERO> {return new Tipo(Tipos.NUMERO);}
+    |
+    <CADENA> {return new Tipo(Tipos.CADENA);}
+}
+
+/** Imprimir -> imprimir ( Expresion ); */
+AST Imprimir() :
+{AST e;}
+{
+    <IMPRIMIR> <PARENI> e=Expresion() <PAREND> <PCOMA> {return new Imprimir(e, token.beginLine, token.beginColumn);}
+}
+
+/** Declaracion -> tipo id = expresion; */
+AST Declaracion() :
+{AST dec, e = null; Tipo t; Token id;}
+{
+  t=Tipo() id=<IDENTIFICADOR> (<IGUAL> e=Expresion())? <PCOMA> {return new Declaracion(t, id.image, e, token.beginLine, token.beginColumn);}
+}
+
+/** Asignacion -> id = expresion; */
+AST Asignacion() :
+{AST e; Token id;}
+{
+  id=<IDENTIFICADOR> <IGUAL> e=Expresion() <PCOMA> {return new Asignacion(id.image, e, token.beginLine, token.beginColumn);}
+}
+
+/** Si -> if(condicion) instrucciones (else if(condicion) instrucciones)* (else instrucciones)? */
+AST Si() :
+{AST e, If; ArrayList<AST> insIf, insElse = new ArrayList<AST>();}
+{
+    <SI> <PARENI> e=Expresion() <PAREND> insIf=Bloque() 
+    (
+        LOOKAHEAD(2) <SINO> If=Si() {insElse.add(If);}
+        |
+        LOOKAHEAD(2) <SINO> insElse=Bloque()
+    )?
+
+    {return new Si(e, insIf, insElse, token.beginLine, token.beginColumn);}
+}
+
+/** While -> while(condicion) instrucciones */
+AST Mientras() :
+{AST e; ArrayList<AST> ins;}
+{
+    <MIENTRAS> <PARENI> e=Expresion() <PAREND> ins=Bloque() 
+    {return new Mientras(e, ins, token.beginLine, token.beginColumn);}
+}
+
+
+/** Bloque -> { (Instruccion)+ }
+*/
+ArrayList<AST> Bloque() :
+{ArrayList<AST> insBloque = new ArrayList<AST>(); AST e;}
+{
+  <LLAVEI> (e=Instruccion() {insBloque.add(e);})* <LLAVED> {return insBloque;}
+}
+
+AST Expresion() :
+{AST e, e1;}
+{
+    e=CondicionAnd() 
+    (
+        <OR> e1=CondicionAnd() {e = new Logica(e, e1, OperadorLogico.OR, token.beginLine, token.beginColumn);}
+    )*
+    {return e;}
+}
+
+AST CondicionAnd() :
+{AST e, e1;}
+{
+    e=ExpresionIgualdad() 
+    (
+        <AND> e1=ExpresionIgualdad() {e = new Logica(e, e1, OperadorLogico.AND, token.beginLine, token.beginColumn);}
+    )*
+    {return e;}
+}
+
+
+/** ExpresionIgualdad -> ExpresionRelacional ('==' ExpresionRelacional)*
+                     |  ExpresionRelacional ('!=' ExpresionRelacional)*
+*/
+AST ExpresionIgualdad() :
+{AST e, e1;}
+{
+    e=ExpresionRelacional() 
+    (
+        <IGUALACION> e1=ExpresionRelacional() {e = new Relacional(e, e1, OperadorRelacional.IGUALACION, token.beginLine, token.beginColumn);}
+        |
+        <DIFERENCIACION> e1=ExpresionRelacional() {e = new Relacional(e, e1, OperadorRelacional.DIFERENCIACION, token.beginLine, token.beginColumn);}
+    )*
+    {return e;}
+}
+
+
+/** ExpresionRelacional -> ExpresionAditiva ('>' ExpresionAditiva)*
+                     |  ExpresionAditiva ('<' ExpresionAditiva)*
+                     |  ExpresionAditiva ('>=' ExpresionAditiva)*
+                     |  ExpresionAditiva ('<=' ExpresionAditiva)*
+*/
+AST ExpresionRelacional() :
+{AST e, e1;}
+{
+    e=ExpresionAditiva() 
+    (
+        <MAYORQUE> e1=ExpresionAditiva() {e = new Relacional(e, e1, OperadorRelacional.MAYORQUE, token.beginLine, token.beginColumn);}
+        |
+        <MENORQUE> e1=ExpresionAditiva() {e = new Relacional(e, e1, OperadorRelacional.MENORQUE, token.beginLine, token.beginColumn);}
+        |
+        <MAYORIGUAL> e1=ExpresionAditiva() {e = new Relacional(e, e1, OperadorRelacional.MAYORIGUAL, token.beginLine, token.beginColumn);}
+        |
+        <MENORIGUAL> e1=ExpresionAditiva() {e = new Relacional(e, e1, OperadorRelacional.MENORIGUAL, token.beginLine, token.beginColumn);}
+    )*
+    {return e;}
+}
+
+
+/** ExpresionAditiva -> ExpresionMultiplicativa ('+' ExpresionMultiplicativa)*
+                     |  ExpresionMultiplicativa ('-' ExpresionMultiplicativa)*
+*/
+AST ExpresionAditiva() :
+{AST e, e1;}
+{
+    e=ExpresionMultiplicativa()
+    (
+        <MAS> e1=ExpresionMultiplicativa() {e = new Aritmetica(e, e1, OperadorAritmetico.SUMA, token.beginLine, token.beginColumn);}
+        |
+        <MENOS> e1=ExpresionMultiplicativa() {e = new Aritmetica(e, e1, OperadorAritmetico.RESTA, token.beginLine, token.beginColumn);}
+    )*
+    {return e;}
+}
+
+/** ExpresionMultiplicativa -> ExpresionUnaria ('*' ExpresionUnaria)*
+                            |  ExpresionUnaria ('/' ExpresionUnaria)*
+*/
+AST ExpresionMultiplicativa() :
+{AST e, e1;}
+{
+    e=ExpresionUnaria()
+    (
+        <POR> e1=ExpresionUnaria() {e = new Aritmetica(e, e1, OperadorAritmetico.MULTIPLICACION, token.beginLine, token.beginColumn);}
+        |
+        <DIV> e1=ExpresionUnaria() {e = new Aritmetica(e, e1, OperadorAritmetico.DIVISION, token.beginLine, token.beginColumn);}
+    )*
+    {return e;}
+}
+
+/** ExpresionUnaria -> '-' ExpresionUnaria
+                    |  Primitivo
+ */
+AST ExpresionUnaria() :
+{AST e;}
+{
+    <MENOS> e=ExpresionUnaria() {return new Aritmetica(e, OperadorAritmetico.MENOSUNARIO, token.beginLine, token.beginColumn);}
+    |
+    <NOT> e=ExpresionUnaria() {return new Logica(e, OperadorLogico.NOT, token.beginLine, token.beginColumn);}
+    |
+    e=Primitivo() {return e;}
+}
+
+/** Primitivo -> Numero
+              |  Decimal
+              |  '(' Expresion ')' 
+*/
+AST Primitivo() :
+{AST e; Token t;}
+{
+    <NUMERO> {return new Primitivo(new Tipo(Tipos.NUMERO), Double.parseDouble(token.image), token.beginLine, token.beginColumn);}
+    |
+    <DECIMAL> {return new Primitivo(new Tipo(Tipos.NUMERO), Double.parseDouble(token.image), token.beginLine, token.beginColumn);}
+    |
+    t=<STRING> {return new Primitivo(new Tipo(Tipos.CADENA), t.image.substring(1,t.image.length()-1), token.beginLine, token.beginColumn);}
+    |
+    t=<IDENTIFICADOR> {return new Identificador(t.image, token.beginLine, token.beginColumn);}
+    |
+    <PARENI> e=Expresion() <PAREND> {return e;}
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="502.0" prefWidth="732.0" style="-fx-background-color: #;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="interpretejavacc.UIController">
+    <children>
+        <Label layoutX="300.0" layoutY="14.0" text="Entrada">
+            <font>
+                <Font size="39.0" />
+            </font>
+        </Label>
+        <TextArea fx:id="entrada" layoutX="14.0" layoutY="69.0" prefHeight="394.0" prefWidth="393.0" style="-fx-font-weight: bold; -fx-font-size: 14;" wrapText="true" />
+        <Button fx:id="btnEjecutar" layoutX="182.0" layoutY="470.0" mnemonicParsing="false" onAction="#Ejecutar" style="-fx-background-color: #0bff81;" text="Ejecutar" />
+        <TextArea fx:id="consola" editable="false" layoutX="420.0" layoutY="70.0" prefHeight="394.0" prefWidth="306.0" style="-fx-control-inner-background: black; -fx-text-fill: #0bff81; -fx-font-size: 14;" text="" wrapText="true" />
+    </children>
+</AnchorPane>
