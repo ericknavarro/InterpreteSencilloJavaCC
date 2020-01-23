@@ -21,7 +21,7 @@ Actualmente cuenta con un conjunto de instrucciones basicas:
 - Interfaz de usuario, que cuenta con un textArea y una consola de salida
 - Detección de errores lexicos y sintacticos, ademas de recuperacion de errores semanticos.
 
-**Notas**
+**Notas: **
 ***Para hacer pruebas revisar la sintaxis con el archivo de entrada proporcionado o revisar la gramatica utilizada.***
 
 ***~~Si encuentras algun error mientras haces pruebas :fearful: :sob:, o~~ crees que puedes mejorar el codigo, los cambios son bienvenidos***
