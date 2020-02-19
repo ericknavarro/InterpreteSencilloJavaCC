@@ -2,6 +2,8 @@ package Instrucciones;
 
 import Abstract.AST;
 import Excepciones.Excepcion;
+import Expresiones.Continue;
+import Expresiones.Retorno;
 import TablaSimbolos.Arbol;
 import TablaSimbolos.Tabla;
 import java.util.ArrayList;
@@ -28,20 +30,31 @@ public class Mientras extends AST {
         do {
             Tabla t = new Tabla(tabla);
             valorCondicion = condicion.interpretar(t, tree);
-            if (valorCondicion instanceof Excepcion) return valorCondicion;
+            if (valorCondicion instanceof Excepcion) {
+                return valorCondicion;
+            }
 
             if (!(valorCondicion instanceof Boolean)) {
                 Excepcion ex = new Excepcion("Semantico", "Se esperaba un valor booleano para la condicion", fila, columna);
                 tree.getExcepciones().add(ex);
                 return ex;
             }
-            if((Boolean) valorCondicion){
-                instrucciones.forEach(m -> {
-                    m.interpretar(t, tree);
-                });
+            Object result = null;
+            if ((Boolean) valorCondicion) {
+                for (AST m : instrucciones) {
+                    result = m.interpretar(t, tree);
+                    if (result instanceof Retorno || result instanceof Excepcion) {
+                        return result;
+                    }
+                    if(result instanceof Detener){
+                        return null;
+                    }
+                    if(result instanceof Continue){
+                        break;
+                    }
+                }
             }
         } while ((Boolean) valorCondicion);
-
         return null;
     }
 }

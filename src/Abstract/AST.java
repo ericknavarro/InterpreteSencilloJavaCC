@@ -17,4 +17,8 @@ public abstract class AST {
     public Object interpretar(Tabla tabla, Arbol tree) {
         return null;
     }
+
+    public Tipo getTipo() {
+        return tipo;
+    }
 }

@@ -9,7 +9,9 @@ public class Tipo {
     public static enum Tipos {
         NUMERO,
         CADENA,
-        BOOLEANO
+        BOOLEANO,
+        VOID,
+        LISTA
     };
 
     private Tipos tipos;

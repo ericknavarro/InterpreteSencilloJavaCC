@@ -16,6 +16,12 @@ import Expresiones.Identificador;
 import Expresiones.Aritmetica.OperadorAritmetico;
 import Expresiones.Logica.OperadorLogico;
 import Expresiones.Relacional.OperadorRelacional;
+import Expresiones.Funcion;
+import Expresiones.Llamada;
+import Expresiones.Retorno;
+import Expresiones.Argumentos;
+import Instrucciones.Detener;
+import Expresiones.Continue;
 import Instrucciones.Imprimir;
 import Instrucciones.Declaracion;
 import Instrucciones.Si;
@@ -47,6 +53,10 @@ TOKEN : {
     | <CADENA: "Cadena">
     | <IMPRIMIR: "Imprimir">
     | <MIENTRAS: "Mientras">
+    | <FUNCION: "Funcion">
+    | <RETORNO: "Return">
+    | <BREAK: "Break">
+| <CONTINUE: "continue">
     | <SI: "if">
     | <SINO: "else">
     | <PCOMA: ";">
@@ -67,6 +77,7 @@ TOKEN : {
     | <MAYORIGUAL: ">=">
     | <IGUALACION: "==">
     | <DIFERENCIACION: "!=">
+    | <COMA: ",">
     | <AND: "&&">
     | <OR: "||">
     | <NOT: "!" >
@@ -109,6 +120,8 @@ AST Instruccion() :
 {AST e;}
 {
   e=Imprimir() {return e;}
+  |
+  LOOKAHEAD(2)e=Llamada() <PCOMA> {return e;}
   | 
   e=Declaracion() {return e;}
   | 
@@ -117,6 +130,13 @@ AST Instruccion() :
   e=Si() {return e;}
   | 
   e=Mientras() {return e;}
+  |
+  e=Funcion() {return e;}
+  | 
+  e=retorno() {return e;}
+  | 
+  e=detener() {return e;}
+  | e=Continue() {return e;}
 }
 
 /** Tipo -> numero
@@ -180,6 +200,73 @@ ArrayList<AST> Bloque() :
 {ArrayList<AST> insBloque = new ArrayList<AST>(); AST e;}
 {
   <LLAVEI> (e=Instruccion() {insBloque.add(e);})* <LLAVED> {return insBloque;}
+}
+
+/** Funcion -> funcion nombre (params){INSTRUCCIONES}
+*/
+
+AST Funcion() :
+{ Token id; ArrayList<AST> expresiones; ArrayList<AST> insBloque; Tipo tipo;}
+{
+    <FUNCION> tipo=Tipo() id=<IDENTIFICADOR> <PARENI> expresiones=Lista_Parametros() <PAREND> insBloque=Bloque()
+    {return new Funcion(tipo, id.image, expresiones, insBloque, token.beginLine, token.beginColumn);}
+}
+
+AST Llamada() :
+{ArrayList<AST> expresiones; Token t;}
+{
+    t=<IDENTIFICADOR> <PARENI> expresiones=Lista_Expresiones() <PAREND> 
+    {return new Llamada(t.image, expresiones, t.beginLine, t.beginColumn);}
+}
+
+ArrayList<AST> Lista_Parametros() :
+{ArrayList<AST> lista = new ArrayList<AST>(); AST e; Tipo t; Token id;}
+{
+    (
+        t=Tipo() id=<IDENTIFICADOR> {lista.add(new Declaracion(t, id.image, null, token.beginLine, token.beginColumn));}
+        (
+            <COMA> t=Tipo() id=<IDENTIFICADOR> {lista.add(new Declaracion(t, id.image, null, token.beginLine, token.beginColumn));}
+        )*
+    )?
+    {return lista;}
+}
+
+ArrayList<AST> Lista_Expresiones() :
+{ArrayList<AST> lista = new ArrayList<AST>(); AST e;}
+{
+    (
+        e=Expresion() {lista.add(e);}
+        (
+            <COMA> e=Expresion() {lista.add(e);}
+        )*
+    )?
+    {return lista;}
+}
+
+AST argumentos() :
+{ArrayList<AST> lista;}
+{
+    <CORI> lista=Lista_Expresiones() <CORD>
+    {return new Argumentos(lista, token.beginLine, token.beginColumn);}
+}
+
+AST retorno() :
+{AST e;}
+{
+    LOOKAHEAD(2)<RETORNO> e=Expresion() <PCOMA> {return new Retorno(e, token.beginLine, token.beginColumn);}
+    | 
+    <RETORNO> <PCOMA>{return new Retorno(token.beginLine, token.beginColumn);}
+}
+
+AST detener() :
+{AST e;}
+{
+    <BREAK> <PCOMA>{return new Detener();}
+}
+AST Continue() :
+{AST e;}
+{
+    <CONTINUE> <PCOMA>{return new Continue();}
 }
 
 AST Expresion() :
@@ -295,9 +382,14 @@ AST Primitivo() :
     |
     <DECIMAL> {return new Primitivo(new Tipo(Tipos.NUMERO), Double.parseDouble(token.image), token.beginLine, token.beginColumn);}
     |
+    LOOKAHEAD(2)e=Llamada() {return e;}
+    |
     t=<STRING> {return new Primitivo(new Tipo(Tipos.CADENA), t.image.substring(1,t.image.length()-1), token.beginLine, token.beginColumn);}
     |
-    t=<IDENTIFICADOR> {return new Identificador(t.image, token.beginLine, token.beginColumn);}
+    LOOKAHEAD(2)t=<IDENTIFICADOR> {return new Identificador(t.image, token.beginLine, token.beginColumn);}
     |
     <PARENI> e=Expresion() <PAREND> {return e;}
+    |
+    e=argumentos() {return e;}
+    
 }

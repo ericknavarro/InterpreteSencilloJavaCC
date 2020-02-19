@@ -2,6 +2,8 @@ package Instrucciones;
 
 import Abstract.AST;
 import Excepciones.Excepcion;
+import Expresiones.Continue;
+import Expresiones.Retorno;
 import TablaSimbolos.Arbol;
 import TablaSimbolos.Tabla;
 import java.util.ArrayList;
@@ -31,22 +33,31 @@ public class Si extends AST {
         if (valorCondicion instanceof Excepcion) {
             return valorCondicion;
         }
-        
+
         if (!(valorCondicion instanceof Boolean)) {
             Excepcion ex = new Excepcion("Semantico", "Se esperaba un valor booleano para la condicion", fila, columna);
             tree.getExcepciones().add(ex);
             return ex;
         }
-
+        Object result = null;
         if ((Boolean) valorCondicion) {
-            instruccionesIf.forEach(m -> {
-                m.interpretar(t, tree);
-            });
+            for (AST m : instruccionesIf) {
+                result = m.interpretar(t, tree);
+                if (result instanceof Retorno || result instanceof Excepcion 
+                        || result instanceof Detener || result instanceof Continue) {
+                    return result;
+                }
+            }
         } else {
-            instruccionesElse.forEach(m -> {
-                m.interpretar(t, tree);
-            });
+            for (AST m : instruccionesElse) {
+                result = m.interpretar(t, tree);
+                if (result instanceof Retorno || result instanceof Excepcion 
+                        || result instanceof Detener || result instanceof Continue) {
+                    return result;
+                }
+            }
         }
+        
         return null;
     }
 }

@@ -15,6 +15,7 @@ public class Declaracion extends AST {
 
     private String identificador;
     private AST valor;
+    private Object valorExplicito;
 
     public Declaracion(Tipo tipo, String identificador, AST valor, int fila, int columna) {
         this.tipo = tipo;
@@ -29,7 +30,9 @@ public class Declaracion extends AST {
         Object value = null;
         if (valor != null) {
             value = this.valor.interpretar(tabla, tree);
-            if (value instanceof Excepcion) return value;
+            if (value instanceof Excepcion) {
+                return value;
+            }
 
             if (!this.tipo.equals(this.valor.tipo)) {
                 Excepcion ex = new Excepcion("Semantico",
@@ -38,6 +41,8 @@ public class Declaracion extends AST {
                 tree.getExcepciones().add(ex);
                 return ex;
             }
+        } else if (valorExplicito != null) {
+            value = valorExplicito;
         }
         Simbolo simbolo = new Simbolo(this.tipo, this.identificador, value);
         Object result = tabla.setVariable(simbolo);
@@ -47,5 +52,21 @@ public class Declaracion extends AST {
             return ex;
         }
         return null;
+    }
+
+    public Tipo getTipo() {
+        return tipo;
+    }
+
+    public void setValor(AST valor) {
+        this.valor = valor;
+    }
+
+    public String getIdentificador() {
+        return identificador;
+    }
+
+    public void setValorExplicito(Object valorExplicito) {
+        this.valorExplicito = valorExplicito;
     }
 }
