@@ -376,7 +376,7 @@ AST ExpresionUnaria() :
               |  '(' Expresion ')' 
 */
 AST Primitivo() :
-{AST e; Token t;}
+{AST e; Token t; String cad;}
 {
     <NUMERO> {return new Primitivo(new Tipo(Tipos.NUMERO), Double.parseDouble(token.image), token.beginLine, token.beginColumn);}
     |
@@ -384,7 +384,11 @@ AST Primitivo() :
     |
     LOOKAHEAD(2)e=Llamada() {return e;}
     |
-    t=<STRING> {return new Primitivo(new Tipo(Tipos.CADENA), t.image.substring(1,t.image.length()-1), token.beginLine, token.beginColumn);}
+    t=<STRING> {    cad = t.image.substring(1,t.image.length()-1);
+                    cad = cad.replace("\\","\\");
+                    cad = cad.replace("\\n","\n");
+                    cad = cad.replace("\\t","\t");
+                    return new Primitivo(new Tipo(Tipos.CADENA), cad, token.beginLine, token.beginColumn);}
     |
     LOOKAHEAD(2)t=<IDENTIFICADOR> {return new Identificador(t.image, token.beginLine, token.beginColumn);}
     |

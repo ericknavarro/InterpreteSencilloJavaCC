@@ -652,7 +652,7 @@ public class Gramatica implements GramaticaConstants {
               |  '(' Expresion ')' 
 */
   final public AST Primitivo() throws ParseException {
- AST e; Token t;
+ AST e; Token t; String cad;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case NUMERO:
       jj_consume_token(NUMERO);
@@ -671,7 +671,11 @@ public class Gramatica implements GramaticaConstants {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case STRING:
           t = jj_consume_token(STRING);
-                {if (true) return new Primitivo(new Tipo(Tipos.CADENA), t.image.substring(1,t.image.length()-1), token.beginLine, token.beginColumn);}
+                    cad = t.image.substring(1,t.image.length()-1);
+                    cad = cad.replace("\\","\\");
+                    cad = cad.replace("\\n","\n");
+                    cad = cad.replace("\\t","\t");
+                    {if (true) return new Primitivo(new Tipo(Tipos.CADENA), cad, token.beginLine, token.beginColumn);}
           break;
         default:
           jj_la1[24] = jj_gen;
@@ -798,19 +802,14 @@ public class Gramatica implements GramaticaConstants {
     return false;
   }
 
-  private boolean jj_3_4() {
-    if (jj_scan_token(RETORNO)) return true;
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
   private boolean jj_3R_29() {
     if (jj_3R_30()) return true;
     return false;
   }
 
-  private boolean jj_3R_16() {
-    if (jj_3R_17()) return true;
+  private boolean jj_3_4() {
+    if (jj_scan_token(RETORNO)) return true;
+    if (jj_3R_14()) return true;
     return false;
   }
 
@@ -819,13 +818,18 @@ public class Gramatica implements GramaticaConstants {
     return false;
   }
 
-  private boolean jj_3R_30() {
-    if (jj_scan_token(CORI)) return true;
+  private boolean jj_3R_16() {
+    if (jj_3R_17()) return true;
     return false;
   }
 
   private boolean jj_3_6() {
     if (jj_scan_token(IDENTIFICADOR)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_30() {
+    if (jj_scan_token(CORI)) return true;
     return false;
   }
 

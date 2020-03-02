@@ -37,9 +37,9 @@ mientras(a<4+c){
 //Se asigna a la variable a el valor de 11
 a=11;
 /**
- * La variable b ya había sido declarada pero 
- * dentro del ámbito del primer ciclo while, 
- * entonces no existe en este ámbito por lo que 
+ * La variable b ya habï¿½a sido declarada pero 
+ * dentro del ï¿½mbito del primer ciclo while, 
+ * entonces no existe en este ï¿½mbito por lo que 
  * debe declararse.
  **/
 numero b;
@@ -62,3 +62,38 @@ If(a>10){
 }else{
  imprimir("a es menor o igual que 10.");
 }
+
+funcion numero factorial(numero x){
+	if(x <= 0){
+		return 1;
+	}
+	return factorial(x-1)*x;
+}
+imprimir("el factorial de 5 es: "+ factorial(5));
+
+numero contador = 0;
+mientras(contador < 10){
+    if(contador == 2 || contador == 7){
+        contador = contador + 1;
+        imprimir("sentencia continue");
+        continue;
+    }else if(contador == 9){
+        imprimir("sentencia break");
+        break;
+    }
+    imprimir("contador while: "+contador);
+    contador = contador + 1;
+}
+
+funcion numero ackermann(numero m, numero n){
+    if(m == 0){
+        return n + 1;
+    } else if(m>0 && n == 0){
+        return ackermann(m - 1, 1);
+    } else{
+        return ackermann(m-1, ackermann(m, n-1));
+    }
+}
+imprimir("ackermann de [3,8]: "+ackermann(3,8));
+
+pie([80, 20, 32, 65], ["w", "x", "y", "z"], "Grafica 1");
