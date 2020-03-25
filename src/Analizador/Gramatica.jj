@@ -37,13 +37,11 @@ public class Gramatica {
 PARSER_END(Gramatica)
 
 /** Lexico */
-SKIP : {
-      " "
-    | "\t"
-    | "\r"
-    | "\n"
-    | <"//" (~["\n", "\r"])*>
-    | <"/*" (~["*"])* "*" ("*" | ~["*","/"] (~["*"])* "*")* "/">
+
+
+MORE :
+{
+    "\"" :STRING_STATE
 }
 
 TOKEN : {
@@ -82,11 +80,17 @@ TOKEN : {
     | <OR: "||">
     | <NOT: "!" >
     | <IDENTIFICADOR: ["a"-"z","A"-"Z", "_"] ( ["a"-"z","A"-"Z", "_"] | ["0"-"9"] )* >
+    
 }
 
-MORE :
-{
-    "\"" :STRING_STATE
+SKIP : {
+      " "
+    | "\t"
+    | "\r"
+    | "\n"
+    | <"//" (~["\n", "\r"])*>
+    | <"/*" (~["*"])* "*" ("*" | ~["*","/"] (~["*"])* "*")* "/">
+    | <(~[])> {System.out.println("error");}
 }
 
 <STRING_STATE> MORE:

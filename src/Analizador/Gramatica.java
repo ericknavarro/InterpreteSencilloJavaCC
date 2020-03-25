@@ -63,15 +63,15 @@ public class Gramatica implements GramaticaConstants {
       jj_consume_token(0);
                                                  {if (true) return ins;}
     } catch (ParseException exc) {
-        Token t;
-        System.out.println(exc.toString());
-         do {
-            t = getNextToken();
-            if(t.kind == EOF){
-             {if (true) return ins;}
-            }
-         } while (t.kind != PCOMA && t!=null && t.kind != EOF );
-        {if (true) return Analizar(ins);}
+            Token t;
+            System.out.println(exc.toString());
+            do {
+                t = getNextToken();
+                if(t.kind == EOF){
+                 {if (true) return ins;}
+                }
+             } while (t.kind != PCOMA && t!=null && t.kind != EOF );
+            {if (true) return Analizar(ins);}
     }
     throw new Error("Missing return statement in function");
   }
@@ -760,11 +760,6 @@ public class Gramatica implements GramaticaConstants {
     finally { jj_save(5, xla); }
   }
 
-  private boolean jj_3_1() {
-    if (jj_3R_11()) return true;
-    return false;
-  }
-
   private boolean jj_3R_19() {
     if (jj_3R_20()) return true;
     return false;
@@ -786,13 +781,13 @@ public class Gramatica implements GramaticaConstants {
     return false;
   }
 
-  private boolean jj_3R_16() {
-    if (jj_3R_17()) return true;
+  private boolean jj_3_6() {
+    if (jj_scan_token(IDENTIFICADOR)) return true;
     return false;
   }
 
-  private boolean jj_3_6() {
-    if (jj_scan_token(IDENTIFICADOR)) return true;
+  private boolean jj_3R_16() {
+    if (jj_3R_17()) return true;
     return false;
   }
 
@@ -922,6 +917,11 @@ public class Gramatica implements GramaticaConstants {
     return false;
   }
 
+  private boolean jj_3_1() {
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
   /** Generated Token Manager. */
   public GramaticaTokenManager token_source;
   SimpleCharStream jj_input_stream;
@@ -944,10 +944,10 @@ public class Gramatica implements GramaticaConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x3fe00,0x800,0x3f600,0x600,0x40000000,0x40000,0x3fe00,0x0,0x600,0x0,0x8500180,0x4000,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0xc000000,0xc000000,0x30000000,0x30000000,0x8500180,0x180,0x0,0x500000,};
+      jj_la1_0 = new int[] {0x1ff0,0x40,0x1fb0,0x30,0x2000000,0x2000,0x1ff0,0x0,0x30,0x0,0x42800c,0x200,0x0,0x0,0xc0000000,0xc0000000,0x3c000000,0x3c000000,0x600000,0x600000,0x1800000,0x1800000,0x42800c,0xc,0x0,0x28000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x200,0x0,0x200,0x0,0x0,0x0,0x200,0x20,0x0,0x20,0x1300,0x0,0x80,0x40,0x18,0x18,0x7,0x7,0x0,0x0,0x0,0x0,0x1300,0x0,0x1000,0x0,};
+      jj_la1_1 = new int[] {0x10,0x0,0x10,0x0,0x0,0x0,0x10,0x1,0x0,0x1,0x2018,0x0,0x4,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2018,0x0,0x2000,0x0,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[6];
   private boolean jj_rescan = false;
@@ -1136,7 +1136,7 @@ public class Gramatica implements GramaticaConstants {
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[45];
+    boolean[] la1tokens = new boolean[46];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -1153,7 +1153,7 @@ public class Gramatica implements GramaticaConstants {
         }
       }
     }
-    for (int i = 0; i < 45; i++) {
+    for (int i = 0; i < 46; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
