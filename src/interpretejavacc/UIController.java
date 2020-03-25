@@ -58,7 +58,9 @@ public class UIController implements Initializable {
         }
         try {
             Gramatica parser = new Gramatica(new BufferedReader(new StringReader(entrada.getText())));
-            Arbol arbol = parser.Analizar();
+            Arbol arbol = new Arbol(new ArrayList<>());
+            arbol.setInstrucciones(parser.Analizar(new ArrayList<>()));
+
             EjecutarInstrucciones(arbol);
         } catch (ParseException e) {
             consola.setText(consola.getText() + e.getMessage() + "\n");
@@ -109,8 +111,8 @@ public class UIController implements Initializable {
             System.out.println("" + m.toString());
         });
     }
-    
-    public void crearNativas(Tabla t){
+
+    public void crearNativas(Tabla t) {
         Tipo tipo = new Tipo(Tipo.Tipos.CADENA);
         String nombre = "toUpper";
         ArrayList<AST> parametros = new ArrayList<>();
@@ -118,7 +120,7 @@ public class UIController implements Initializable {
         ArrayList<AST> instrucciones = new ArrayList<>();
         aMayuscula am = new aMayuscula(tipo, nombre, parametros, instrucciones, -1, -1);
         t.setFuncion(am);
-        
+
         tipo = new Tipo(Tipo.Tipos.CADENA);
         nombre = "pie";
         parametros = new ArrayList<>();

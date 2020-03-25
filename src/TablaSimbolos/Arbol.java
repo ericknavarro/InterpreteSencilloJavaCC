@@ -22,6 +22,8 @@ public class Arbol {
         this.instrucciones = instrucciones;
         this.excepciones = new ArrayList<>();
     }
+    
+    
 
     public ArrayList<AST> getInstrucciones() {
         return instrucciones;

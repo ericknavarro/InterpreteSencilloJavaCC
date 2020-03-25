@@ -104,10 +104,23 @@ MORE :
 /** Producción inicial 
     Analizar -> (Instruccion)+ EOF
 */
-Arbol Analizar() :
-{ArrayList<AST> ins = new ArrayList<AST>(); AST e;}
+
+ArrayList<AST> Analizar(ArrayList<AST> ins) :
+{ AST e;}
 {
-  (e=Instruccion() {ins.add(e);})+ <EOF> {return new Arbol(ins);}
+    try {
+         (e=Instruccion() {ins.add(e);})+ <EOF> {return ins;}
+    } catch (ParseException exc) {
+            Token t;
+            System.out.println(exc.toString());
+            do {
+                t = getNextToken();
+                if(t.kind == EOF){
+                 return ins;
+                }
+             } while (t.kind != PCOMA && t!=null && t.kind != EOF );
+            return Analizar(ins);
+    }
 }
 
 /** Instruccion -> imprimir 

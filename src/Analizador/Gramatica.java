@@ -35,32 +35,44 @@ public class Gramatica implements GramaticaConstants {
 /** Producción inicial 
     Analizar -> (Instruccion)+ EOF
 */
-  final public Arbol Analizar() throws ParseException {
- ArrayList<AST> ins = new ArrayList<AST>(); AST e;
-    label_1:
-    while (true) {
-      e = Instruccion();
-                    ins.add(e);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case ENTERO:
-      case CADENA:
-      case IMPRIMIR:
-      case MIENTRAS:
-      case FUNCION:
-      case RETORNO:
-      case BREAK:
-      case CONTINUE:
-      case SI:
-      case IDENTIFICADOR:
-        ;
-        break;
-      default:
-        jj_la1[0] = jj_gen;
-        break label_1;
+  final public ArrayList<AST> Analizar(ArrayList<AST> ins) throws ParseException {
+  AST e;
+    try {
+      label_1:
+      while (true) {
+        e = Instruccion();
+                           ins.add(e);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case ENTERO:
+        case CADENA:
+        case IMPRIMIR:
+        case MIENTRAS:
+        case FUNCION:
+        case RETORNO:
+        case BREAK:
+        case CONTINUE:
+        case SI:
+        case IDENTIFICADOR:
+          ;
+          break;
+        default:
+          jj_la1[0] = jj_gen;
+          break label_1;
+        }
       }
+      jj_consume_token(0);
+                                                 {if (true) return ins;}
+    } catch (ParseException exc) {
+        Token t;
+        System.out.println(exc.toString());
+         do {
+            t = getNextToken();
+            if(t.kind == EOF){
+             {if (true) return ins;}
+            }
+         } while (t.kind != PCOMA && t!=null && t.kind != EOF );
+        {if (true) return Analizar(ins);}
     }
-    jj_consume_token(0);
-                                          {if (true) return new Arbol(ins);}
     throw new Error("Missing return statement in function");
   }
 
@@ -748,50 +760,6 @@ public class Gramatica implements GramaticaConstants {
     finally { jj_save(5, xla); }
   }
 
-  private boolean jj_3R_22() {
-    if (jj_scan_token(NOT)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_14() {
-    if (jj_3R_15()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_20() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_21()) {
-    jj_scanpos = xsp;
-    if (jj_3R_22()) {
-    jj_scanpos = xsp;
-    if (jj_3R_23()) return true;
-    }
-    }
-    return false;
-  }
-
-  private boolean jj_3R_21() {
-    if (jj_scan_token(MENOS)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_12() {
-    if (jj_scan_token(SI)) return true;
-    return false;
-  }
-
-  private boolean jj_3R_17() {
-    if (jj_3R_18()) return true;
-    return false;
-  }
-
-  private boolean jj_3R_11() {
-    if (jj_scan_token(IDENTIFICADOR)) return true;
-    if (jj_scan_token(PARENI)) return true;
-    return false;
-  }
-
   private boolean jj_3_1() {
     if (jj_3R_11()) return true;
     return false;
@@ -907,6 +875,50 @@ public class Gramatica implements GramaticaConstants {
 
   private boolean jj_3R_23() {
     if (jj_3R_24()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_22() {
+    if (jj_scan_token(NOT)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_14() {
+    if (jj_3R_15()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_20() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_21()) {
+    jj_scanpos = xsp;
+    if (jj_3R_22()) {
+    jj_scanpos = xsp;
+    if (jj_3R_23()) return true;
+    }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_21() {
+    if (jj_scan_token(MENOS)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_12() {
+    if (jj_scan_token(SI)) return true;
+    return false;
+  }
+
+  private boolean jj_3R_17() {
+    if (jj_3R_18()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_11() {
+    if (jj_scan_token(IDENTIFICADOR)) return true;
+    if (jj_scan_token(PARENI)) return true;
     return false;
   }
 
